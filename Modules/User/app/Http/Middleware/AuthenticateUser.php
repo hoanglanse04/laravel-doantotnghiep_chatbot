@@ -1,0 +1,21 @@
+<?php
+
+namespace Modules\User\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class AuthenticateUser
+{
+    /**
+     * Handle an incoming request.
+     */
+    public function handle(Request $request, Closure $next)
+    {
+        if (!Auth::guard('user')->check()) {
+            return redirect()->route('user.login');
+        }
+        return $next($request);
+    }
+}

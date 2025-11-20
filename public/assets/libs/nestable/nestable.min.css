@@ -1,0 +1,109 @@
+.dd {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+    line-height: 20px;
+  }
+  .dd-list {
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .dd-list .dd-list {
+    padding-left: 54px;
+  }
+  .dd-empty,
+  .dd-item,
+  .dd-placeholder {
+    position: relative;
+    padding: 0;
+  }
+  .dd-data {
+    border: 2px solid #dcdcdc;
+    background: #fafafa;
+    border-radius: 6px;
+  }
+  .dd-handle {
+    cursor: pointer;
+    padding: 5px 10px;
+    color: #333;
+    font-weight: 600;
+    text-decoration: none;
+    box-sizing: border-box;
+  }
+  .dd-handle:hover {
+    color: #56a661;
+  }
+  .dd-item > button {
+    position: relative;
+    cursor: pointer;
+    float: left;
+    width: 25px;
+    height: 38px;
+    margin: 5px 0;
+    padding: 0;
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    border: 0;
+    background: 0 0;
+    font-size: 12px;
+    line-height: 1;
+    text-align: center;
+    font-weight: 700;
+  }
+  .dd-item > button:before {
+    display: block;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    text-indent: 0;
+  }
+  .dd-item > button.dd-expand:before {
+    content: "+";
+  }
+  .dd-item > button.dd-collapse:before {
+    content: "-";
+  }
+  .dd-expand {
+    display: none;
+  }
+  .dd-collapsed .dd-collapse,
+  .dd-collapsed .dd-list {
+    display: none;
+  }
+  .dd-collapsed .dd-expand {
+    display: block;
+  }
+  .dd-empty,
+  .dd-placeholder {
+    padding: 0;
+    min-height: 30px;
+    border-radius: 6px;
+    border: 1px dashed #b6bcbf;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+  }
+  .dd-empty {
+    border: 1px dashed #bbb;
+    min-height: 100px;
+    background-color: #e5e5e5;
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+  }
+  .dd-dragel {
+    position: absolute;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  .dd-dragel > .dd-item .dd-handle {
+    margin-top: 0;
+  }
+  .dd-nochildren .dd-placeholder {
+    display: none;
+  }

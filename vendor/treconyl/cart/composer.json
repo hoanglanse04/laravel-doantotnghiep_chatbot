@@ -1,0 +1,43 @@
+{
+    "name": "treconyl/laravelshoppingcart",
+    "description": "Laravel Shopping cart",
+    "keywords": ["laravel", "shoppingcart"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Treconyl",
+            "email": "treconyl@gmail.com"
+        }
+    ],
+    "require": {
+        "illuminate/support": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
+        "illuminate/session": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
+        "illuminate/events": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5|^10.5",
+        "mockery/mockery": "^1.4",
+        "orchestra/testbench": "^7|^8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Treconyl\\Shoppingcart\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Treconyl\\Tests\\Shoppingcart\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Treconyl\\Shoppingcart\\ShoppingcartServiceProvider"
+            ],
+            "aliases": {
+                "Cart": "Treconyl\\Shoppingcart\\Facades\\Cart"
+            }
+        }
+    }
+}

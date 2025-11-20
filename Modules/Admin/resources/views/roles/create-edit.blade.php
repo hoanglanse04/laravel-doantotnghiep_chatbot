@@ -1,0 +1,158 @@
+@extends('admin::layouts.master')
+@section('title', isset($data) ? 'Chỉnh sửa vai trò' : 'Thêm mới vai trò')
+
+@section('head')
+@endsection
+
+@section('content')
+    <div class="mb-6">
+        <div class="relative group flex items-center">
+            <a class="text-sm text-gray-500 dark:text-gray-800" href="{{ route('admin.roles.index') }}">
+                Vai trò
+            </a>
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--solar w-4 h-4 mx-2 fill-current text-gray-600" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M8.512 4.43a.75.75 0 0 1 1.057.082l6 7a.75.75 0 0 1 0 .976l-6 7a.75.75 0 0 1-1.138-.976L14.012 12L8.431 5.488a.75.75 0 0 1 .08-1.057" clip-rule="evenodd"></path></svg>
+            <span class="text-sm text-gray-500 dark:text-gray-800">{{ isset($data) ? 'Cập nhật' : 'Tạo mới'}}</span>
+        </div>
+    </div>
+
+    <form action="{{ isset($data) ? route('admin.roles.update', $data->id) : route('admin.roles.store') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @isset($data)
+            @method('PUT')
+        @endisset
+        <div class="max-w-5xl space-y-2 mb-6">
+            <div class="flex items-center">
+                <div class="block w-40 flex-none font-medium text-sm"> Tên vai trò </div>
+                <div class="w-full">
+                    <x-admin::form.input
+                        name="name"
+                        :value="old('name', $data->name ?? '')"
+                        placeholder="Nhập tên"
+                        class="w-full"
+                    />
+                </div>
+            </div>
+
+            <div class="flex items-center">
+                <div class="block w-40 flex-none font-medium text-sm"> Mô tả ngắn </div>
+                <div class="w-full">
+                    <x-admin::form.input
+                        name="description"
+                        :value="old('description', $data->description ?? '')"
+                        placeholder="Nhập mô tả ngắn"
+                        class="w-full"
+                    />
+                </div>
+            </div>
+
+            <div>
+                <button
+                    type="button"
+                    id="toggle-all"
+                    class="text-sm text-blue-600 hover:underline py-2 cursor-pointer"
+                >
+                    Chọn tất cả
+                </button>
+
+                <ul class="grid grid-cols-4 gap-6">
+                    @php
+                        $grouped = $permissions->groupBy(function ($item) {
+                            return explode('-', $item->key)[1]; // phân nhóm theo module
+                        });
+                    @endphp
+
+                    @foreach ($grouped as $module => $group)
+                        <li class="rounded bg-gray-50 col-span-1">
+                            <label class="flex items-center space-x-2 mb-2">
+                                <input
+                                    type="checkbox"
+                                    data-module="{{ $module }}"
+                                    class="module-checkbox w-4 h-4 cursor-pointer text-[#56a661] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#56a661] focus:ring-2"
+                                >
+                                @php
+                                    $nameParts = explode(' ', $group->first()->name);
+                                    $moduleName = implode(' ', array_slice($nameParts, 2));
+                                @endphp
+                                <p class="text-sm font-medium uppercase">{{ $moduleName }}</p>
+
+                            </label>
+
+                            <ul class="ml-6 space-y-1">
+                                @foreach ($group as $permission)
+                                    <li>
+                                        <label class="flex items-center space-x-2 text-sm">
+                                            <input
+                                                type="checkbox"
+                                                name="permissions[]"
+                                                value="{{ $permission->id }}"
+                                                data-module="{{ $module }}"
+                                                class="permission-checkbox w-4 h-4 cursor-pointer text-[#56a661] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#56a661] focus:ring-2"
+                                                {{ isset($data) && $data->permissions->contains('id', $permission->id) ? 'checked' : '' }}
+                                            >
+                                            <span>{{ $permission->name }}</span>
+                                        </label>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+
+        </div>
+
+        <x-admin::form.button
+            type="submit"
+            color="success"
+            radius="lg"
+        >
+            {{ isset($data) ? 'Cập nhật' : 'Tạo mới'}}
+        </x-admin::form.button>
+    </form>
+@endsection
+
+@section('footer')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleAllBtn = document.getElementById('toggle-all');
+            let allSelected = false;
+
+            toggleAllBtn.addEventListener('click', function () {
+                allSelected = !allSelected;
+                document.querySelectorAll('.permission-checkbox, .module-checkbox').forEach(cb => {
+                    cb.checked = allSelected;
+                });
+                this.textContent = allSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả';
+            });
+
+            // Khi click vào checkbox module
+            document.querySelectorAll('.module-checkbox').forEach(parent => {
+                parent.addEventListener('change', function () {
+                    const module = this.dataset.module;
+                    const isChecked = this.checked;
+                    document.querySelectorAll(`.permission-checkbox[data-module="${module}"]`).forEach(child => {
+                        child.checked = isChecked;
+                    });
+                });
+            });
+
+            // Đồng bộ checkbox cha nếu tất cả con cùng trạng thái
+            document.querySelectorAll('.permission-checkbox').forEach(child => {
+                child.addEventListener('change', function () {
+                    const module = this.dataset.module;
+                    const children = document.querySelectorAll(`.permission-checkbox[data-module="${module}"]`);
+                    const parent = document.querySelector(`.module-checkbox[data-module="${module}"]`);
+
+                    parent.checked = [...children].every(c => c.checked);
+                });
+            });
+
+            // Khởi tạo đồng bộ ban đầu
+            document.querySelectorAll('.module-checkbox').forEach(parent => {
+                const module = parent.dataset.module;
+                const children = document.querySelectorAll(`.permission-checkbox[data-module="${module}"]`);
+                parent.checked = [...children].every(c => c.checked);
+            });
+        });
+    </script>
+@endsection
