@@ -10,6 +10,10 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\PublicOrderController;
+use App\Models\Order;
+use App\Mail\OrderCreatedMail;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
@@ -106,3 +110,8 @@ Route::prefix('artisan')->group(function () {
         return response()->json(['message' => 'Queue Restarted']);
     });
 });
+
+Route::get('/locations/provinces', [LocationController::class, 'provinces']);
+Route::get('/locations/provinces/{provinceId}/districts', [LocationController::class, 'districts']);
+Route::get('/locations/districts/{districtId}/wards', [LocationController::class, 'wards']);
+Route::get('/order-search', [PublicOrderController::class, 'index'])->name('order.search');

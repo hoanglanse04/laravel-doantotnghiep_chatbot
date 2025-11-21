@@ -31,9 +31,9 @@
                 <form method="POST" action="{{ route('admin.orders.updateStatus', $order->id) }}" class="mt-3">
                     @csrf
                     <select name="status" class="border rounded p-2 w-full mb-2">
-                        <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>pending</option>
-                        <option value="paid" {{ $order->status == 'paid' ? 'selected' : '' }}>paid</option>
-                        <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>cancelled</option>
+                        <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Đang xử lý</option>
+                        <option value="paid" {{ $order->status == 'paid' ? 'selected' : '' }}>Đã thanh toán</option>
+                        <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Đã hủy</option>
                     </select>
                     <button class="w-full bg-indigo-600 text-white py-2 rounded">Cập nhật trạng thái</button>
                 </form>

@@ -9,9 +9,9 @@
         <h1 class="text-2xl font-semibold mb-4">Thanh toán</h1>
 
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-12 gap-6">
           {{-- Left: Form --}}
-          <div>
+          <div class="col-span-12 lg:col-span-4">
             <form action="{{ route('cart.checkout.process') }}" method="POST" class="space-y-4">
               @csrf
 
@@ -42,14 +42,35 @@
                 @error('phone')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
               </div>
 
+              <div class="mt-3 grid grid-cols-1 gap-2">
+                <select id="province" class="rounded-md  border-gray-300 p-2">
+                  <option value="">-- Chọn tỉnh/thành --</option>
+                </select>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Địa chỉ</label>
-                <textarea name="address" rows="3"
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-400 p-2"
-                  required maxlength="500">{{ old('address') }}</textarea>
-                @error('address')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
+                <select id="district" class="rounded-md  border-gray-300 p-2" disabled>
+                  <option value="">-- Chọn huyện/quận --</option>
+                </select>
+
+
+                <select id="ward" class="rounded-md border -gray-300 p-2" disabled>
+                  <option value="">-- Chọn xã/phường --</option>
+                </select>
               </div>
+
+              <!-- Textarea address (street) -->
+              <div class="mt-3">
+                <label class="block text-sm font-medium text-gray-700">Địa chỉ (số nhà, đường...)</label>
+                <textarea id="address_text" name="address" rows="3"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" required maxlength="500"></textarea>
+              </div>
+
+              <!-- Hidden fields (gửi tên và combined) -->
+              <input type="hidden" id="province_name" name="province_name" value="">
+              <input type="hidden" id="district_name" name="district_name" value="">
+              <input type="hidden" id="ward_name" name="ward_name" value="">
+              <input type="hidden" id="location_full" name="location_full" value="">
+
+
 
 
               <div>
@@ -78,7 +99,7 @@
 
 
           {{-- Right: Order summary --}}
-          <div>
+          <div class="col-span-12 lg:col-span-8">
             <div class="border rounded-lg p-4 bg-gray-50">
               <h2 class="text-lg font-medium mb-3">Tóm tắt đơn hàng</h2>
 
@@ -144,22 +165,15 @@
                             <div>Tổng số lượng:</div>
                             <div class="cart-total-quantity">{{ \Treconyl\Shoppingcart\Facades\Cart::count() }}</div>
                           </li>
-                          <li class="flex items-center justify-between py-2">
-                            <div>Thuế:</div>
-                            <div>
-                              {{ number_format(\Treconyl\Shoppingcart\Facades\Cart::tax(), 0, ',', '.') }}đ
-                            </div>
-                          </li>
+
                           <li class="flex items-center justify-between py-2">
                             <div>Tổng đơn hàng:</div>
                             <div class="cart-total-price">
-                              {{ number_format(\Treconyl\Shoppingcart\Facades\Cart::total(), 0, ',', '.') }}đ
+                              {{ number_format(\Treconyl\Shoppingcart\Facades\Cart::subtotal(), 0, ',', '.') }}đ
                             </div>
                           </li>
                         </ul>
-                        <a href="{{ route('cart.checkout') }}"
-                          class="block px-4 py-3 rounded-lg font-semibold bg-[#c7a97f] transition text-gray-50 text-center uppercase">
-                          Thanh toán </a>
+
                       </div>
                     </div>
                   </div>
@@ -179,5 +193,178 @@
 @endsection
 
 @section('footer')
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const JSON_URL = "/data/vietnamAddress.json"; // đường dẫn file bạn đã upload
+
+      const provinceSelect = document.getElementById("province");
+      const districtSelect = document.getElementById("district");
+      const wardSelect = document.getElementById("ward");
+      const addressText = document.getElementById("address_text");
+
+      const provinceNameInput = document.getElementById("province_name");
+      const districtNameInput = document.getElementById("district_name");
+      const wardNameInput = document.getElementById("ward_name");
+      const locationFullInput = document.getElementById("location_full");
+
+      let data = [];
+
+      // Load JSON (file path provided)
+      fetch(JSON_URL)
+        .then(res => res.json())
+        .then(json => {
+          data = Array.isArray(json) ? json : (json.provinces || []);
+          loadProvinces();
+        })
+        .catch(err => {
+          console.error("Cannot load locations JSON:", err);
+        });
+
+      function loadProvinces() {
+        provinceSelect.innerHTML = '<option value="">-- Chọn tỉnh/thành --</option>';
+        data.forEach(p => {
+          // value giữ Id (để nếu cần), nhưng ta lưu tên ở data-name
+          provinceSelect.innerHTML += `<option value="${p.Id}" data-name="${p.Name}">${p.Name}</option>`;
+        });
+      }
+
+      provinceSelect.addEventListener("change", function () {
+        const pid = this.value;
+        districtSelect.innerHTML = `<option value="">-- Chọn huyện/quận --</option>`;
+        wardSelect.innerHTML = `<option value="">-- Chọn xã/phường --</option>`;
+        wardSelect.disabled = true;
+        districtSelect.disabled = true;
+
+        if (!pid) {
+          // clear hidden
+          provinceNameInput.value = "";
+          districtNameInput.value = "";
+          wardNameInput.value = "";
+          updateLocationFull();
+          return;
+        }
+
+        const province = data.find(p => String(p.Id) === String(pid));
+        if (!province) return;
+
+        // set province name hidden
+        provinceNameInput.value = province.Name || "";
+
+        // fill districts
+        const districts = province.Districts || [];
+        districtSelect.disabled = false;
+        districts.forEach(d => {
+          districtSelect.innerHTML += `<option value="${d.Id}" data-name="${d.Name}">${d.Name}</option>`;
+        });
+
+        // reset downstream hidden values
+        districtNameInput.value = "";
+        wardNameInput.value = "";
+        updateLocationFull();
+      });
+
+      districtSelect.addEventListener("change", function () {
+        const did = this.value;
+        wardSelect.innerHTML = `<option value="">-- Chọn xã/phường --</option>`;
+        wardSelect.disabled = true;
+
+        if (!did) {
+          districtNameInput.value = "";
+          wardNameInput.value = "";
+          updateLocationFull();
+          return;
+        }
+
+        const province = data.find(p => String(p.Id) === String(provinceSelect.value));
+        if (!province) return;
+
+        const district = (province.Districts || []).find(d => String(d.Id) === String(did));
+        if (!district) {
+          districtNameInput.value = "";
+          wardNameInput.value = "";
+          updateLocationFull();
+          return;
+        }
+
+        // set district name hidden
+        districtNameInput.value = district.Name || "";
+
+        // fill wards
+        const wards = district.Wards || [];
+        wardSelect.disabled = false;
+        wards.forEach(w => {
+          wardSelect.innerHTML += `<option value="${w.Id}" data-name="${w.Name}">${w.Name}</option>`;
+        });
+
+        // reset ward hidden
+        wardNameInput.value = "";
+        updateLocationFull();
+      });
+
+      wardSelect.addEventListener("change", function () {
+        const wid = this.value;
+        if (!wid) {
+          wardNameInput.value = "";
+          updateLocationFull();
+          return;
+        }
+        const selectedOpt = wardSelect.options[wardSelect.selectedIndex];
+        const wName = selectedOpt?.dataset?.name || selectedOpt?.text || "";
+        wardNameInput.value = wName;
+        updateLocationFull();
+      });
+
+      // update combined string and store to location_full hidden
+      function updateLocationFull() {
+        const p = provinceNameInput.value || "";
+        const d = districtNameInput.value || "";
+        const w = wardNameInput.value || "";
+        // build "Xã, Huyện, Tỉnh" but skip empty parts
+        const parts = [];
+        if (w) parts.push(w);
+        if (d) parts.push(d);
+        if (p) parts.push(p);
+        const combined = parts.join(', ');
+        locationFullInput.value = combined;
+        // optionally log
+        // console.log('location_full=', combined);
+      }
+
+      // Before submit: combine address_text + location_full into textarea `address` (so server receives final)
+      const forms = document.querySelectorAll('form'); // you can scope to specific form if needed
+      forms.forEach(form => {
+        form.addEventListener('submit', function (e) {
+          // ensure hidden names are up-to-date (in case user didn't change ward)
+          const selProv = provinceSelect.options[provinceSelect.selectedIndex];
+          if (selProv) provinceNameInput.value = selProv.dataset?.name || selProv.text;
+
+          const selDist = districtSelect.options[districtSelect.selectedIndex];
+          if (selDist) districtNameInput.value = selDist.dataset?.name || selDist.text;
+
+          const selWard = wardSelect.options[wardSelect.selectedIndex];
+          if (selWard) wardNameInput.value = selWard.dataset?.name || selWard.text;
+
+          updateLocationFull();
+
+          // combine
+          const street = addressText.value ? addressText.value.trim() : '';
+          const loc = locationFullInput.value ? locationFullInput.value.trim() : '';
+          if (loc) {
+            addressText.value = street ? (street + ', ' + loc) : loc;
+          } else {
+            addressText.value = street;
+          }
+          // now the form will submit: it includes:
+          // - address (full combined)
+          // - province_name, district_name, ward_name (individual names)
+          // - location_full (combined location)
+        }, { capture: true });
+      });
+
+    });
+  </script>
+
+
+
 
 @endsection

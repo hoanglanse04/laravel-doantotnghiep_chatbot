@@ -76,7 +76,7 @@
                 </form>
             </div>
             <div class="hidden md:flex justify-end space-x-4">
-                <a href="{{ route('user.login') }}" aria-label="thông tin người dùng"
+                <a href="{{ route('order.search') }}" aria-label="thông tin người dùng"
                     class="flex group/icon gap-2 items-center">
                     <x-icon.user w="30" />
                 </a>
@@ -84,9 +84,9 @@
                     class=" relative group/icon gap-2 items-center">
                     <x-icon.cart w="30" />
                     @if ($cartCount > 0)
-                        <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5">
-                            {{ $cartCount }}
-                        </span>
+                    <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5">
+                        {{ $cartCount }}
+                    </span>
                     @endif
                 </a>
             </div>
@@ -109,31 +109,31 @@
                             class="w-[280px] bg-gray-50 absolute z-50 mx-4 top-13 left-0 border border-t-0 border-gray-200 transition-all duration-300 rounded-b-md hidden">
                             <ul>
                                 @forelse ($categories_provider as $category)
-                                    <li class="group relative">
-                                        <a class="px-4 py-3 flex items-center justify-between hover:text-[#ef233c] group-hover:bg-white uppercase font-medium text-xs"
-                                            href="{{ route('category', ['slug' => $category->slug]) }}">
-                                            {{ $category->name }}
-                                            @if ($category->children && $category->children->count())
-                                                <x-icon.chevron-right w="14" />
-                                            @endif
-                                        </a>
-                                        {{-- Kiểm tra nếu có children --}}
+                                <li class="group relative">
+                                    <a class="px-4 py-3 flex items-center justify-between hover:text-[#ef233c] group-hover:bg-white uppercase font-medium text-xs"
+                                        href="{{ route('category', ['slug' => $category->slug]) }}">
+                                        {{ $category->name }}
                                         @if ($category->children && $category->children->count())
-                                            <ul
-                                                class="w-78 absolute top-0 left-[278px] bg-gray-50 group-hover:block border border-gray-200 rounded-r-md hidden">
-                                                @foreach ($category->children as $child)
-                                                    <li class="">
-                                                        <a href="{{ route('category', ['slug' => $child->slug]) }}"
-                                                            class="block py-3 px-4 hover:text-[#ef233c]">
-                                                            {{ $child->name }}
-                                                        </a>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
+                                        <x-icon.chevron-right w="14" />
                                         @endif
-                                    </li>
+                                    </a>
+                                    {{-- Kiểm tra nếu có children --}}
+                                    @if ($category->children && $category->children->count())
+                                    <ul
+                                        class="w-78 absolute top-0 left-[278px] bg-gray-50 group-hover:block border border-gray-200 rounded-r-md hidden">
+                                        @foreach ($category->children as $child)
+                                        <li class="">
+                                            <a href="{{ route('category', ['slug' => $child->slug]) }}"
+                                                class="block py-3 px-4 hover:text-[#ef233c]">
+                                                {{ $child->name }}
+                                            </a>
+                                        </li>
+                                        @endforeach
+                                    </ul>
+                                    @endif
+                                </li>
                                 @empty
-                                    <li class="px-4 py-2 text-sm text-gray-500">Chưa có chuyên mục nào</li>
+                                <li class="px-4 py-2 text-sm text-gray-500">Chưa có chuyên mục nào</li>
                                 @endforelse
                             </ul>
                         </div>
@@ -141,8 +141,7 @@
                     {{ builder('menu-top', 'builder.menu.pc') }}
                 </div>
                 <div class="flex items-center space-x-2">
-                    <img src="https://autogear-demo.myshopify.com/cdn/shop/files/delivery.png?v=1726048149"
-                        alt="">
+                    <img src="https://autogear-demo.myshopify.com/cdn/shop/files/delivery.png?v=1726048149" alt="">
                     <p>Giao hàng miễn phí</p>
                 </div>
             </div>
@@ -152,8 +151,7 @@
         <div id="mobileMenuOverlay" class="fixed inset-0 z-50 bg-black/40 hidden" onclick="closeMobileMenu()"></div>
 
         {{-- Sidebar --}}
-        <div id="mobileMenuSidebar"
-            class="fixed top-0 right-0 z-50 bg-white w-80 h-full overflow-y-scroll px-8 py-4 shadow-lg 
+        <div id="mobileMenuSidebar" class="fixed top-0 right-0 z-50 bg-white w-80 h-full overflow-y-scroll px-8 py-4 shadow-lg 
            translate-x-[100%] transition-transform duration-300">
             <div class="flex justify-between items-center mb-4">
                 <h2 id="mobileMenuTitle" class="font-bold text-sm">MENU</h2>
@@ -166,13 +164,13 @@
             {{-- Danh sách chuyên mục sản phẩm --}}
             <ul id="menuCategory" class="space-y-3 text-sm text-gray-700 hidden">
                 @forelse ($categories_provider as $category)
-                    <li>
-                        <a class="py-1 block hover:text-[#ef233c]"
-                            href="{{ route('category', ['slug' => $category->slug]) }}">
-                            {{ $category->name }}
-                        </a>
+                <li>
+                    <a class="py-1 block hover:text-[#ef233c]"
+                        href="{{ route('category', ['slug' => $category->slug]) }}">
+                        {{ $category->name }}
+                    </a>
 
-                        {{-- @if ($category->children && $category->children->count())
+                    {{-- @if ($category->children && $category->children->count())
                     <ul class="ml-4 space-y-2 mt-1 text-gray-600 text-sm">
                         @foreach ($category->children as $child)
                         <li>
@@ -184,9 +182,9 @@
                         @endforeach
                     </ul>
                     @endif --}}
-                    </li>
+                </li>
                 @empty
-                    <li class="px-4 py-2 text-sm text-gray-500">Chưa có chuyên mục nào</li>
+                <li class="px-4 py-2 text-sm text-gray-500">Chưa có chuyên mục nào</li>
                 @endforelse
             </ul>
         </div>
@@ -265,8 +263,7 @@
 
     <div>
 
-        <a href="{{ setting('social_zalo') }}"
-            class="w-11 h-11 fixed z-50 lg:bottom-36 bottom-16 lg:right-10 right-4">
+        <a href="{{ setting('social_zalo') }}" class="w-11 h-11 fixed z-50 lg:bottom-36 bottom-16 lg:right-10 right-4">
             <img src="{{ asset('assets/frontend/img/logo-zalo-tron.png') }}" alt="logo-zalo">
         </a>
         <div id="backToTop"
@@ -289,8 +286,8 @@
                             <div class="sm:flex sm:items-start">
                                 <div
                                     class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-darkgreen-200 sm:mx-0 sm:h-10 sm:w-10">
-                                    <svg class="h-6 w-6 fill-current text-darkgreen-900"
-                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                    <svg class="h-6 w-6 fill-current text-darkgreen-900" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 16 16">
                                         <path
                                             d="M14.5 2.792969L5.5 11.792969L1.851563 8.148438L1.5 7.792969L0.792969 8.5L1.148438 8.851563L5.5 13.207031L15.207031 3.5Z" />
                                     </svg>
@@ -326,8 +323,8 @@
                             <div class="sm:flex sm:items-start">
                                 <div
                                     class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-darkgreen-200 sm:mx-0 sm:h-10 sm:w-10">
-                                    <svg class="h-6 w-6 fill-current text-darkgreen-900"
-                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                    <svg class="h-6 w-6 fill-current text-darkgreen-900" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 16 16">
                                         <path
                                             d="M14.5 2.792969L5.5 11.792969L1.851563 8.148438L1.5 7.792969L0.792969 8.5L1.148438 8.851563L5.5 13.207031L15.207031 3.5Z" />
                                     </svg>
@@ -382,8 +379,7 @@
                                 <g fill="none">
                                     <path stroke="currentColor" stroke-width="1.5"
                                         d="M5.312 10.762C8.23 5.587 9.689 3 12 3s3.77 2.587 6.688 7.762l.364.644c2.425 4.3 3.638 6.45 2.542 8.022S17.786 21 12.364 21h-.728c-5.422 0-8.134 0-9.23-1.572s.117-3.722 2.542-8.022z" />
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-                                        d="M12 8v5" />
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M12 8v5" />
                                     <circle cx="12" cy="16" r="1" fill="currentColor" />
                                 </g>
                             </svg>

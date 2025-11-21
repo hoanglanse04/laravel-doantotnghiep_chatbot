@@ -50,7 +50,7 @@
 
     {{-- Nút thêm vào giỏ ngoài thẻ <a> để không bị bao phủ --}}
     <div class="lg:px-4 px-2 lg:pb-4 pb-2">
-        <a href="{{ route('cart.add', ['id' => $item->id]) }}"
+        <a href="#"
             class="add-to-cart line-clamp-2 text-gray-600 rounded-md uppercase lg:text-[13px] text-xs text-center mt-2 block lg:px-4 px-2 py-2 bg-gray-200 group-hover:bg-[#ef233c] group-hover:text-white"
             data-id="{{ $item->id }}">
             Thêm vào giỏ hàng

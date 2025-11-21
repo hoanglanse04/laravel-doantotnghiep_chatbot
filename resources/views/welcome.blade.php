@@ -21,7 +21,7 @@
     {{-- Canonical URL để tránh trùng lặp nội dung --}}
     <link rel="canonical" href="{{ url()->current() }}">
     <script type="application/ld+json">
-                    {!! json_encode([
+                        {!! json_encode([
         '@context' => 'https://schema.org',
         '@type' => 'Organization',
         'name' => setting('site_name'),
@@ -35,11 +35,11 @@
             'availableLanguage' => 'Vietnamese',
         ],
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
-                </script>
+                    </script>
 @endsection
 
 @section('main')
-    <div class="max-w-7xl mx-auto ">
+    <div class="max-w-7xl mx-auto px-3 py-4">
         @if (session()->has('success'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative mb-4">
                 <strong>Thành công!</strong> {!! session()->get('success') !!}

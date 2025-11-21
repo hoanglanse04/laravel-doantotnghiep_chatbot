@@ -66,16 +66,11 @@
                                     <div>Tổng số lượng:</div>
                                     <div class="cart-total-quantity">{{ \Treconyl\Shoppingcart\Facades\Cart::count() }}</div>
                                 </li>
-                                <li class="flex items-center justify-between py-2">
-                                    <div>Thuế:</div>
-                                    <div>
-                                        {{ number_format(\Treconyl\Shoppingcart\Facades\Cart::tax(), 0, ',', '.') }}đ
-                                    </div>
-                                </li>
+
                                 <li class="flex items-center justify-between py-2">
                                     <div>Tổng đơn hàng:</div>
                                     <div class="cart-total-price">
-                                        {{ number_format(\Treconyl\Shoppingcart\Facades\Cart::total(), 0, ',', '.') }}đ
+                                        {{ number_format(\Treconyl\Shoppingcart\Facades\Cart::subtotal(), 0, ',', '.') }}đ
                                     </div>
                                 </li>
                             </ul>

@@ -11,12 +11,16 @@ class OrderController extends Controller
   // Hiển thị danh sách orders (admin)
   public function index(Request $request)
   {
-    $q = $request->query('q');
-    $status = $request->query('status');
+    $q = (string) $request->query('q', '');
+    $status = (string) $request->query('status', '');
+    $perPage = (int) $request->query('per_page', 20);
+    if ($perPage <= 0) {
+      $perPage = 20;
+    }
 
     $query = Order::query();
 
-    if ($q) {
+    if ($q !== '') {
       $query->where(function ($sub) use ($q) {
         $sub->where('name', 'like', "%{$q}%")
           ->orWhere('email', 'like', "%{$q}%")
@@ -25,15 +29,21 @@ class OrderController extends Controller
       });
     }
 
-    if ($status) {
+    if ($status !== '') {
       $query->where('status', $status);
     }
 
-    // Mặc định latest first, paginate 20
-    $orders = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+    // Mặc định latest first, paginate theo per_page
+    $orders = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
 
-    // Trả view admin.orders.index
-    return view('admin::orders.index', compact('orders', 'q', 'status'));
+    // Filters array để view dùng (giữ values hiện tại để selected)
+    $filters = [
+      'status' => $status,
+      'per_page' => (string) $perPage,
+    ];
+
+    // Trả view admin.orders.index (module view namespace)
+    return view('admin::orders.index', compact('orders', 'q', 'status', 'filters'));
   }
 
   // Hiển thị chi tiết 1 order
