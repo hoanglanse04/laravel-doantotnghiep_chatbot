@@ -48,4 +48,5 @@ return array(
     '9f394da3192a168c4633675768d80428' => $vendorDir . '/nwidart/laravel-modules/src/helpers.php',
     'ec07570ca5a812141189b1fa81503674' => $vendorDir . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
     '381c1f7485be5ec909ca0fe1ede4b928' => $baseDir . '/app/Helpers/Helpers.php',
+    '57dfb5c2f56e4d70deb72f13cc296fc7' => $baseDir . '/app/Helpers/vector.php',
 );

@@ -262,6 +262,37 @@
     </footer>
 
     <div>
+        <!-- Chatbot Toggle Button -->
+        <a id="chatbot-toggle" href="javascript:void(0)" aria-label="Mở chatbot"
+            class="w-11 h-11 fixed z-50 lg:bottom-52 bottom-16 lg:right-10 right-4">
+            <img src="{{ asset('assets/frontend/img/chatagent.png') }}" alt="chatbot">
+        </a>
+
+        <!-- Chatbot Widget -->
+        <div id="chatbot-widget"
+            class="fixed z-[60] lg:bottom-21 bottom-21 lg:right-24 right-4 w-[360px] max-w-[92vw] h-[530px] bg-white border border-gray-200 shadow-xl rounded-lg hidden">
+            <div class="flex items-center justify-between bg-[#ef233c] text-white px-3 py-2 rounded-t-lg">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                        class="opacity-90">
+                        <path fill="currentColor"
+                            d="M2 12c0-4.97 4.03-9 9-9c4.98 0 9 4.03 9 9c0 4.98-4.02 9-9 9a8.95 8.95 0 0 1-4.74-1.35L2 21l1.35-4.26A8.95 8.95 0 0 1 2 12m3.5 0A1.5 1.5 0 0 0 4 13.5A1.5 1.5 0 0 0 5.5 15A1.5 1.5 0 0 0 7 13.5A1.5 1.5 0 0 0 5.5 12m5 0A1.5 1.5 0 0 0 9 13.5A1.5 1.5 0 0 0 10.5 15A1.5 1.5 0 0 0 12 13.5A1.5 1.5 0 0 0 10.5 12m5 0A1.5 1.5 0 0 0 14 13.5A1.5 1.5 0 0 0 15.5 15A1.5 1.5 0 0 0 17 13.5A1.5 1.5 0 0 0 15.5 12" />
+                    </svg>
+                    <span class="font-semibold">Trợ lý mua hàng</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="chatbot-close" type="button"
+                        class="cursor-pointer text-white/90 hover:text-white focus:outline-none text-xl leading-none">×</button>
+                </div>
+            </div>
+            <div id="chatbot-messages" class="p-3 space-y-2 overflow-y-auto h-[410px] text-sm"></div>
+            <div id="chatbot-quick" class="px-3 pb-2 flex flex-wrap gap-2"></div>
+            <form id="chatbot-form" class="flex items-center gap-2 border-t border-gray-200 p-2">
+                <input id="chatbot-input" type="text" placeholder="Nhập tin nhắn..."
+                    class="flex-1 border border-gray-200 rounded-md px-3 py-2 outline-none" />
+                <button type="submit" class="bg-[#ef233c] text-white rounded-md px-3 py-2 cursor-pointer">Gửi</button>
+            </form>
+        </div>
 
         <a href="{{ setting('social_zalo') }}" class="w-11 h-11 fixed z-50 lg:bottom-36 bottom-16 lg:right-10 right-4">
             <img src="{{ asset('assets/frontend/img/logo-zalo-tron.png') }}" alt="logo-zalo">
@@ -415,6 +446,94 @@
     @yield('footer')
     {!! setting('site_footer') !!}
     <script>
+        // Chatbot widget logic
+        (() => {
+            const toggle = document.getElementById('chatbot-toggle');
+            const widget = document.getElementById('chatbot-widget');
+            const closeBtn = document.getElementById('chatbot-close');
+            const form = document.getElementById('chatbot-form');
+            const input = document.getElementById('chatbot-input');
+            const messages = document.getElementById('chatbot-messages');
+            const quickWrap = document.getElementById('chatbot-quick');
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            function showWidget() {
+                const firstOpen = widget?.classList.contains('hidden');
+                widget?.classList.remove('hidden');
+                if (firstOpen && messages?.children?.length === 0) {
+                    // Seed welcome message with quick options
+                    appendMessage('bot', 'Xin chào 👋\nMình là trợ lý mua hàng. Bạn có thể nhắn: "Tìm sản phẩm", "Bảo hành", hoặc xem các sản phẩm bán chạy bên dưới.');
+                    renderQuickReplies([
+                        { title: 'Sản phẩm bán chạy', payload: 'suggest:top_sellers' },
+                        { title: 'Bảo hành', payload: 'faq:warranty' },
+                        { title: 'Thanh toán', payload: 'faq:payment' },
+                    ]);
+                }
+                setTimeout(() => input?.focus(), 50);
+            }
+            function hideWidget() {
+                widget?.classList.add('hidden');
+            }
+            function appendMessage(sender, text) {
+                const wrap = document.createElement('div');
+                wrap.className = sender === 'user' ? 'text-right' : 'text-left';
+                const bubble = document.createElement('div');
+                bubble.className = (sender === 'user' ? 'inline-block bg-gray-900 text-white' : 'inline-block bg-gray-100') + ' rounded px-3 py-2';
+                bubble.textContent = text;
+                wrap.appendChild(bubble);
+                messages.appendChild(wrap);
+                messages.scrollTop = messages.scrollHeight;
+            }
+            function renderQuickReplies(list) {
+                quickWrap.innerHTML = '';
+                if (!list || !list.length) return;
+                list.forEach(q => {
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'text-xs bg-gray-100 hover:bg-gray-200 rounded px-2 py-1';
+                    b.textContent = q.title;
+                    b.addEventListener('click', () => sendMessage('', q.payload));
+                    quickWrap.appendChild(b);
+                });
+            }
+            async function sendMessage(text, payload = null) {
+                try {
+                    const body = payload ? { payload } : { message: text };
+                    const res = await fetch('/api/chat/send', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {}),
+                        },
+                        body: JSON.stringify(body)
+                    });
+                    const data = await res.json();
+                    const reply = data?.reply;
+                    if (reply?.text) appendMessage('bot', reply.text);
+                    renderQuickReplies(reply?.meta?.quick_replies || []);
+                } catch (e) {
+                    appendMessage('bot', 'Xin lỗi, hệ thống đang bận.');
+                }
+            }
+
+            toggle?.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (widget.classList.contains('hidden')) showWidget();
+                else hideWidget();
+            });
+            closeBtn?.addEventListener('click', hideWidget);
+            form?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const text = (input?.value || '').trim();
+                if (!text) return;
+                appendMessage('user', text);
+                input.value = '';
+                renderQuickReplies([]);
+                sendMessage(text);
+            });
+        })();
+
         const sidebar = document.getElementById("mobileMenuSidebar");
         const overlay = document.getElementById("mobileMenuOverlay");
         const menuTitle = document.getElementById("mobileMenuTitle");

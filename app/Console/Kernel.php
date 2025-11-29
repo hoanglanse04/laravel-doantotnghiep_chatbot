@@ -8,7 +8,14 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel
 {
     /**
-     * Đăng ký schedule tại đây nếu muốn tách riêng khỏi routes/console.php
+     * Khai báo các Artisan Commands ở đây
+     */
+    protected $commands = [
+        \App\Console\Commands\EmbedFaqProducts::class,
+    ];
+
+    /**
+     * Đăng ký schedule
      */
     protected function schedule(Schedule $schedule): void
     {
@@ -16,13 +23,12 @@ class Kernel extends ConsoleKernel
     }
 
     /**
-     * Đăng ký các command Artisan
+     * Load commands từ thư mục và từ routes/console.php
      */
     protected function commands(): void
     {
         $this->load(__DIR__ . '/Commands');
 
-        // hoặc thêm command route dạng file
         require base_path('routes/console.php');
     }
 }

@@ -34,5 +34,9 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'ollama' => [
+        'base' => env('OLLAMA_BASE', 'http://127.0.0.1:11434'),
+    ],
+
 
 ];
